@@ -19,33 +19,8 @@ def dEp(R, E0, r0):
 	dans le système & E0 > 0 & r0 > 0
 	"""
 	V = Vp(R, r0);
-	Ei = 12*E0*V*(1-V)/(np.sqrt(R));
+	Ei = 12*E0*(V*2)*(1-(V*2))/(np.sqrt(R));
 	return(Ei);
-
-def Amov(n,E0,r0, CM):
-	"""
-	int*double*double -> array
-	Amov: mouvement des atomes afin de minimiser l'énergie
-	hypothèse: E0 > 0 & r0 > 0 & n > 0
-	"""
-	Mov = np.zeros((n-1,3));
-	R = CartoR(CM);
-	dE = dEp(R, E0, r0);
-	C = np.append(np.array([[0,0,0]]),CM, axis = 0);
-	count = range(n-1);
-	d = 0;
-	f = 0;
-	for i in count:
-		d = f;
-		m = n - (i+1);
-		f = d + m;
-		sweep = range(d,f);
-		for j in sweep:
-			Vr = (CM[i+(j%m)]-C[i]);
-			norm = np.sqrt((Vr*Vr).sum())
-			Ur = Vr/norm;
-			Mov[i] += Ur*dE[j];
-	return(Mov);
 
 def Vp(R, r0):
 	"""
@@ -54,9 +29,29 @@ def Vp(R, r0):
 	hypothèse: R est un array de taille 1*((n*(n-1))/2) n étant le nombre d'atome
 	dans le système & r0 > 0
 	"""
-	return((r0**6)/(2*(R**3)));
-
-
+	return((r0**6)/((R**3)*2));
+	
+def Amov(n,E0,r0, CM):
+	"""
+	int*double*double -> array
+	Amov: mouvement des atomes afin de minimiser l'énergie
+	hypothèse: E0 > 0 & r0 > 0 & n > 0
+	"""
+	Mov = np.zeros((n-1,3));
+	C = np.append(np.array([[0,0,0]]),CM, axis = 0);
+	i = 1;
+	while i < n:
+		j = 0;
+		while j < n:
+			if i != j:
+				Vr = C[i]-C[j];
+				R = (Vr*Vr).sum();
+				dE = dEp(R, E0, r0);
+				Ur = Vr/R;
+				Mov[i-1] += Ur*dE;
+			j += 1;
+		i += 1;
+	return(Mov);
 
 def CartoR(CM):
 	"""
@@ -113,10 +108,10 @@ def Map(Np,n,E0,r0,l):
 				break;
 	print((1*Bool.sum()/Np)*100, m, "last");
 	np.sort(R);
-	PIV = (1 - (np.sqrt(PIV)/(r0))**6)/(1-(np.sqrt(PIV)/(r0))**12);
+	PIV = 1/(1+(np.sqrt(PIV)/(r0*1.75))**6);
 	return((PIV,E,Cart));
 
-def AIRSS(Np,n,E0,r0,l):
+def AIRSS(Np,n,E0,r0,l,delta):
 	"""
 	int*int*double*double*double -> tuple(array,array)
 	clustering: Trouve les etats stables dans l'espace PIV
@@ -124,13 +119,26 @@ def AIRSS(Np,n,E0,r0,l):
 	"""
 	PIV = np.zeros((Np,int((n*(n-1))/2)));
 	E = np.zeros((Np));
-	Cart = np.zeros((Np,n-1,3));
-
-	for i in range(Np):
-		CM = l*np.random.rand(n-1,3) - l/2;
-
-
-	print((1*Bool.sum()/Np)*100, m, "last");
-	PIV = 1/(1+(np.sqrt(PIV)/(r0*1.75))**6);
-
-	return((PIV,E,Cart));
+	Cart = l*np.random.rand(Np,n-1,3) - l/2;
+	Moln = range(Np);
+	itt = 100000;
+	atom = range(n-1);
+	d2 = delta*delta;
+	for j in Moln:
+		CM = Cart[j,::,::];
+		i = 0;
+		pas = 0.5;
+		while i < itt:
+			i += 1;
+			mov = Amov(n,E0,r0,CM);
+			norm = np.sqrt((mov*mov).sum(1));
+			if((norm*norm).sum() < d2):
+				break;
+			for k in atom:
+				if(norm[k]*norm[k] > d2):
+					U = mov[k]/norm[k];
+					CM[k] = CM[k] - pas*U;
+					pas *= 0.98;
+		Cart[j,::,::] = CM;
+		print(100*(j+1)/Np);
+	return(Cart);
