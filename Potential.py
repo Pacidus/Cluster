@@ -30,7 +30,7 @@ def Vp(R, r0):
 	dans le système & r0 > 0
 	"""
 	return((r0**6)/((R**3)*2));
-	
+
 def Amov(n,E0,r0, CM):
 	"""
 	int*double*double -> array
@@ -121,9 +121,11 @@ def AIRSS(Np,n,E0,r0,l,delta):
 	E = np.zeros((Np));
 	Cart = l*np.random.rand(Np,n-1,3) - l/2;
 	Moln = range(Np);
-	itt = 100000;
+	itt = 10000;
 	atom = range(n-1);
 	d2 = delta*delta;
+	pas = 1;
+	p = .975;
 	for j in Moln:
 		CM = Cart[j,::,::];
 		i = 0;
@@ -132,13 +134,11 @@ def AIRSS(Np,n,E0,r0,l,delta):
 			i += 1;
 			mov = Amov(n,E0,r0,CM);
 			norm = np.sqrt((mov*mov).sum(1));
-			if((norm*norm).sum() < d2):
-				break;
 			for k in atom:
 				if(norm[k]*norm[k] > d2):
 					U = mov[k]/norm[k];
 					CM[k] = CM[k] - pas*U;
-					pas *= 0.98;
+					pas = pas*p + 10**-5;
 		Cart[j,::,::] = CM;
-		print(100*(j+1)/Np);
+		print(100*(j+1)/Np, i);
 	return(Cart);
