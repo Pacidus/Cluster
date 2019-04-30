@@ -121,11 +121,11 @@ def AIRSS(Np,n,E0,r0,l,delta):
 	E = np.zeros((Np));
 	Cart = l*np.random.rand(Np,n-1,3) - l/2;
 	Moln = range(Np);
-	itt = 10000;
+	itt = 100000;
 	atom = range(n-1);
 	d2 = delta*delta;
 	pas = 1;
-	p = .975;
+	p = .985;
 	for j in Moln:
 		CM = Cart[j,::,::];
 		i = 0;
@@ -138,7 +138,7 @@ def AIRSS(Np,n,E0,r0,l,delta):
 				if(norm[k]*norm[k] > d2):
 					U = mov[k]/norm[k];
 					CM[k] = CM[k] - pas*U;
-					pas = pas*p + 10**-5;
+					pas = pas*p + 10**-6;
 		Cart[j,::,::] = CM;
 		print(100*(j+1)/Np, i);
 	return(Cart);
