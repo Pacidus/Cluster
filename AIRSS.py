@@ -3,11 +3,11 @@ import numpy as np
 from Potential import AIRSS, Ep, CartoR
 from Mail import send
 
-n = 20;
+n = 13;
 r0 = 2;
 E0 = 25;
 l = n/3;
-Np = 10;
+Np = 1000;
 delta = 5*10**-5
 
 Cart = AIRSS(Np,n,E0,r0,l, delta);

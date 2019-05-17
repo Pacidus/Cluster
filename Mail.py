@@ -1,5 +1,6 @@
 # Import smtplib for the actual sending function
 import smtplib
+import requests
 
 # Import the email modules we'll need
 from email.message import EmailMessage
@@ -12,7 +13,7 @@ def send(n,r0,l,E0,Np):
 	datafile = open("../ID.go", "r")
 	username = datafile.readline();
 	password = datafile.readline();
-
+	url 	 = datafile.readline();
 
 	fromaddr = username;
 	toaddrs  = username;
@@ -20,6 +21,8 @@ def send(n,r0,l,E0,Np):
 	msg = """From: %s\nTo: %s\nSubject: %s\n\n%s\n
 	 n = %d \n r0 = %f \n l = %f \n E0 = %f \n Np = %d
 	""" % (fromaddr, toaddrs, "Simulations Stage", "Simulation terminee", n,r0,l,E0,Np)
+
+	requests.get(url+msg);
 	try:
 		server = smtplib.SMTP('smtp.gmail.com:587')
 		server.starttls()

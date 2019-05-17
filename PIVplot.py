@@ -11,7 +11,7 @@ def ask():
 	print("Donées des positions AIRSS :");
 	Ref = askopenfilename();
 	print(Ref)
-
+	root.destroy();
 	return(Ref);
 
 Ref = ask();
@@ -57,5 +57,8 @@ plt.grid(True);
 plt.plot(D,Enorm,".");
 #plt.plot(PIV0[:,0],PIV0[:,1]);
 
+Data = np.array([D,Enorm]).T
+np.savetxt("E-PIV_n"+str(n)+".data",Data)
 
 plt.show();
+
